@@ -1,77 +1,99 @@
+/* eslint-disable */
 import React, { Fragment } from "react";
+import moment from 'moment'
+import helpers from '../helpers/helpers'
 
 import {
-    IonCard,
-    IonCardContent,
-    IonCardTitle,
-    IonCardSubtitle,
-    IonCardHeader,
-    IonContent,
-    IonItem,
-    IonList,
-    IonAvatar,
-    IonLabel,
+  IonCard,
+  IonCardContent,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardHeader,
+  IonContent,
+  IonItem,
+  IonList,
+  IonAvatar,
+  IonLabel,
 } from "@ionic/react";
 
 type WeatherDetailProps = {
-    forecast: any;
-    weather: any;
-}
+  weather: any;
+  currentForecast: any;
+};
 
-const WeatherDetail: React.FC<WeatherDetailProps> = ({weather, forecast}) => {
-    console.log(weather, 'hello')
+const WeatherDetail: React.FC<WeatherDetailProps> = ({
+  weather,
+  currentForecast,
+}) => {
 
-    const weatherDay = forecast.map((forecasts, index) =>
-        <li key={index}>
-            forecasts.hourly.temp
-        </li>
-    );
+  const formatTemperature = (temp: number) => `${(temp - 273.15).toFixed(0)}°`
 
-    return (
-        <Fragment>
-            {weather && <IonContent>
-                <IonCard>
-                    <IonCardHeader>
-                        <IonCardTitle>{weather.name}</IonCardTitle>
-                        <IonCardTitle></IonCardTitle>
-                        <IonCardSubtitle>{weather.weather[0].main}</IonCardSubtitle>
-                    </IonCardHeader>
-                    <IonCardContent>
-                        Aujourd'hui : {weather.weather[0].description}
-                        <IonList>
-                            <IonItem>
-                                <IonAvatar slot="start"></IonAvatar>
-                                <IonLabel>
-                                    <h2>{weather.main.temp - 273.15}°C</h2>
-                                    <h3>I'm a big deal</h3>
-                                    <p>Humidité: {weather.main.humidity}</p>
-                                </IonLabel>
-                            </IonItem>
-                        </IonList>
-                    </IonCardContent>
-                </IonCard>
-                <IonCard>
+  const formatDateTime = (dt: any, formatType: any) => moment.unix(dt).format(formatType)
 
-                    <IonCardContent>
+  return (
+    <Fragment>
+      {weather && currentForecast && (
+        <IonContent>
+          <IonCard>
+            <IonCardHeader>
+              <IonAvatar slot="start">
+                <img
+                  src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`}
+                />
+              </IonAvatar>
+              <IonCardTitle>{weather.name}</IonCardTitle>
+              <IonCardSubtitle>{weather.weather[0].main}</IonCardSubtitle>
+            </IonCardHeader>
+            <IonCardContent>
+              Aujourd'hui : {weather.weather[0].description}
+              <IonList>
+                {currentForecast.hourly.map((item) => (
+                  <IonItem>
+                    <IonAvatar slot="start">
+                      <img
+                        src={`https://openweathermap.org/img/wn/${item.weather[0].icon}.png`}
+                      />
+                    </IonAvatar>
+                    <IonLabel>
+                      <h1>{formatDateTime(item.dt, 'HH')}h00</h1>
+                      <h2>{formatTemperature(item.temp)}</h2>
+                      <h3>{item.weather[0].main}</h3>
+                      <p>{item.weather[0].description}</p>
+                    </IonLabel>
+                  </IonItem>
+                ))}
+              </IonList>
+            </IonCardContent>
+          </IonCard>
+          <IonCard>
+            <IonCardTitle>Les jours suivants</IonCardTitle>
+            <IonCardContent>
+              <IonList>
+                {currentForecast.daily.map((item) => (
+                  <IonItem>
+                    <IonAvatar slot="start">
+                      <img
+                        src={`https://openweathermap.org/img/wn/${item.weather[0].icon}.png`}
+                      />
+                    </IonAvatar>
 
-                        <IonList>
-                            <IonItem>
-                                <IonAvatar slot="start"></IonAvatar>
-                                <IonLabel>
-                                    <h2>Finn</h2>
-                                    <h3>I'm a big deal</h3>
-                                    <p>Listen, I've had a pretty messed up day...</p>
-                                    <ul>{weatherDay}</ul>
-                                </IonLabel>
-                            </IonItem>
-                        </IonList>
-                    </IonCardContent>
-                </IonCard>
-            </IonContent>}
+                    <IonLabel>
+                      <h1>{formatDateTime(item.dt, 'dddd')}</h1>
+                      <h2>{formatTemperature(item.temp.day)}</h2>
+                      <h3>{item.weather[0].main}</h3>
+                      <p>{item.weather[0].description}</p>
+                    </IonLabel>
+                  </IonItem>
+                ))}
+              </IonList>
+            </IonCardContent>
+          </IonCard>
+        </IonContent>
+      )}
 
-            <Fragment></Fragment>
-        </Fragment>
-    );
+      <Fragment></Fragment>
+    </Fragment>
+  );
 };
 
 export default WeatherDetail;
